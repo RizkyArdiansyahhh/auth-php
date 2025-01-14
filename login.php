@@ -2,8 +2,21 @@
 session_start();
 require 'functions.php';
 
+if(isset($_COOKIE["remember_token"]) && empty($_SESSION["username"])){
+    $token = $_COOKIE["remember_token"];
+    $result = mysqli_query($conn,"SELECT * FROM users WHERE token IS NOT NULL");
+
+    while($user = mysqli_fetch_assoc($result)){
+        if(password_verify($token, $user["token"])){
+            $_SESSION["username"] = $user["username"];
+            break;
+        }
+    }
+}
+
 if(isset($_SESSION["username"])){
     header("Location: index.php");
+    exit;
 }
 
 if(isset($_POST["login"])){
@@ -17,7 +30,19 @@ if(isset($_POST["login"])){
 
             if(password_verify($password, $user["password"])){
                 $_SESSION["username"] = $user["username"];
-                header("Location: index.php");
+               
+                if(isset($_POST["remember"])){
+                    // bikin token
+                    $token = bin2hex(random_bytes(16));
+                    setcookie("remember_token", $token, time() + 60 * 60 * 24 * 30);
+                    
+                    $tokenHash = password_hash($token, PASSWORD_DEFAULT);
+                    mysqli_query($conn, "UPDATE users SET token = '$tokenHash' WHERE username = '$username'");
+
+                    header("Location: index.php");
+                    exit;
+                    
+                }
             }else{
                 echo "
                 <script>

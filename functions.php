@@ -34,4 +34,7 @@ function register($data){
     }
     }
 
+    // function verifyRememberToken($token){
+
+    // }
 ?>
