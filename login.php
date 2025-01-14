@@ -1,3 +1,38 @@
+<?php 
+session_start();
+require 'functions.php';
+
+if(isset($_SESSION["username"])){
+    header("Location: index.php");
+}
+
+if(isset($_POST["login"])){
+    $username = $_POST["username"];
+    $password = $_POST["password"];
+    $result = mysqli_query($conn,"SELECT * FROM users WHERE username = '$username'");
+
+    if(!empty($username) && !empty($password)){
+        if(mysqli_num_rows($result) === 1){
+        $user = mysqli_fetch_assoc($result);
+
+            if(password_verify($password, $user["password"])){
+                $_SESSION["username"] = $user["username"];
+                header("Location: index.php");
+            }else{
+                echo "
+                <script>
+                    alert('Wrong password');
+                </script>
+                ";
+            }
+        }else{
+            echo "<script>alert('Username not found')</script>";
+        }
+    }else{
+        echo "<script>alert('Please fill in all fields')</script>";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -21,21 +56,17 @@
                     <input class="border-b-2 w-full py-2" type="password" name="password" placeholder="Password">
                 </div>
                 <div>
-                    <input class="border-b-2 w-full py-2" type="password" name="confirm-password"
-                        placeholder="Konfirmasi Password">
-                </div>
-                <div>
                     <input type="checkbox" name="remember" id="remember">
                     <label for="remember" class="font-semibold text-sm text-slate-600">Remember me</label>
                 </div>
                 <div>
-                    <button type="submit" name="register"
-                        class="px-4 py-2 bg-secondary w-full rounded-full text-white font-semibold border border-transparent hover:bg-white hover:text-secondary hover:border-secondary hover:shadow-sm hover:cursor-pointer transition ease-in-out duration-300">Register</button>
+                    <button type="submit" name="login"
+                        class="px-4 py-2 bg-secondary w-full rounded-full text-white font-semibold border border-transparent hover:bg-white hover:text-secondary hover:border-secondary hover:shadow-sm hover:cursor-pointer transition ease-in-out duration-300">Login</button>
                 </div>
             </form>
             <div>
-                <p class="text-center text-base text-slate-600 underline font-medium">already have an account? <a
-                        class="text-secondary" href="login.php">Login</a></p>
+                <p class="text-center text-base text-slate-600 underline font-medium">don't have an account? <a
+                        class="text-secondary" href="register.php">Login</a></p>
             </div>
         </div>
     </div>

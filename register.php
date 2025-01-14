@@ -1,5 +1,10 @@
 <?php
+session_start();
 require 'functions.php';
+
+if(isset($_SESSION["username"])){
+    header("Location: index.php");
+}
 
 if(isset($_POST["register"])){
     if(register($_POST) > 0){
